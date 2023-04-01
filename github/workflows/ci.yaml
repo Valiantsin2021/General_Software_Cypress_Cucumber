@@ -1,0 +1,32 @@
+name: Google smoke test
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'README.md'
+      - 'package.json'
+      - 'cypress.config.js'
+permissions:
+  contents: write
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+    name: UI tests
+    steps:
+      - name: Repository checkout
+        uses: actions/checkout@v3
+      - name: Run Cypress tests
+        uses: cypress-io/github-action@v5
+      - name: Output test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: Reports
+          path: allure-report
+          retention-days: 20
+      - name: Deploy report to Github Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-report
